@@ -9,10 +9,10 @@ import {
 } from '@nestjs/common';
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { CreateCommentDto } from './dto/create-comment';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { UploadedFiles } from '@nestjs/common/decorators';
+import { Query, UploadedFiles } from '@nestjs/common';
 
 @Controller('tracks')
 export class TrackController {
@@ -25,10 +25,7 @@ export class TrackController {
       { name: 'audio', maxCount: 1 },
     ]),
   )
-  create(
-    @UploadedFiles() files,
-    @Body() dto: CreateTrackDto,
-  ) {
+  create(@UploadedFiles() files, @Body() dto: CreateTrackDto) {
     const { picture, audio } = files;
     return this.trackService.create({
       ...dto,
@@ -38,10 +35,18 @@ export class TrackController {
   }
 
   @Get()
-  getAll() {
-    return this.trackService.getAll();
+  getAll(
+    @Query('count') count: number,
+    @Query('offset') offset: number,
+  ) {
+    return this.trackService.getAll(count, offset);
   }
 
+  @Get('/search')
+  search(@Query('query') query: string) {
+    return this.trackService.search(query);
+  }
+  
   @Get(':id')
   getOne(@Param('id') id: mongoose.Schema.Types.ObjectId) {
     return this.trackService.getOne(id);
@@ -55,5 +60,10 @@ export class TrackController {
   @Post('/comment')
   addComment(@Body() dto: CreateCommentDto) {
     return this.trackService.addComment(dto);
+  }
+
+  @Post('/listen/:id')
+  listen(@Param('id') id: ObjectId) {
+    return this.trackService.listen(id);
   }
 }
