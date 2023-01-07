@@ -7,6 +7,7 @@ import {
   Comment,
   CommentSchema,
 } from './schemas/Comment.schema';
+import { FileService } from 'src/file/file.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import {
     ]),
   ],
   controllers: [TrackController],
-  providers: [TrackService],
+  providers: [TrackService, FileService],
 })
 export class TrackModule {}
